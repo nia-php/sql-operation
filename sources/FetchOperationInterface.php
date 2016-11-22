@@ -19,29 +19,29 @@ interface FetchOperationInterface
 {
 
     /**
-     * Fetches a row from a table by using its id.
+     * Fetches a row from a table by using a value.
      *
      * @param string $table
      *            The name of the table.
-     * @param int $id
-     *            Id of the row.
+     * @param mixed $value
+     *            The value.
      * @param string $fieldName
-     *            Optional field name.
+     *            Optional field name. If no field name is set, "id" will be used.
      * @throws OutOfBoundsException If no row could be found.
      * @return mixed[] The fetched row as a map.
      */
-    public function fetch(string $table, int $id, string $fieldName = null): array;
+    public function fetch(string $table, $value, string $fieldName = null): array;
 
     /**
-     * Fetches mupltiples rows from a table using a list of ids.
+     * Fetches mupltiples rows from a table using a list of values.
      *
      * @param string $table
      *            The name of the table.
-     * @param int[] $ids
-     *            List with ids of rows.
+     * @param mixed[] $values
+     *            List of values.
      * @param string $fieldName
-     *            Optional field name.
+     *            Optional field name. If no field name is set, "id" will be used.
      * @return mixed[] List containing maps with fetched rows.
      */
-    public function fetchAll(string $table, array $ids, string $fieldName = null): array;
+    public function fetchAll(string $table, array $values, string $fieldName = null): array;
 }

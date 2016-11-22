@@ -48,16 +48,16 @@ CREATE TABLE IF NOT EXISTS `test`
     `bool` INTEGER NOT NULL DEFAULT '0',
     `nulled` INTEGER NULL
 );
-INSERT INTO test(`id`, `int`) VALUES(NULL, 4);
-INSERT INTO test(`id`, `int`) VALUES(NULL, 5);
-INSERT INTO test(`id`, `int`) VALUES(NULL, 4);
+INSERT INTO test(`id`, `string`, `int`) VALUES(NULL, 'foo', 4);
+INSERT INTO test(`id`, `string`, `int`) VALUES(NULL, 'bar', 5);
+INSERT INTO test(`id`, `string`, `int`) VALUES(NULL, 'baz', 4);
 SQL;
-        
+
         $pdo = new PDO('sqlite:' . $this->databaseFile, null, null, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]);
         $pdo->exec($sql);
-        
+
         $this->adapter = new PdoReadableAdapter($pdo);
     }
 
@@ -68,29 +68,40 @@ SQL;
     {
         $operation = new FetchOperation($this->adapter);
         $result = $operation->fetch('test', 2);
-        
+
         $this->assertSame([
             'id' => '2',
-            'string' => '',
+            'string' => 'bar',
             'int' => '5',
             'decimal' => '0.0',
             'bool' => '0',
             'nulled' => null
         ], $result);
-        
+
         $result = $operation->fetch('test', 5, 'int');
-        
+
         $this->assertSame([
             'id' => '2',
-            'string' => '',
+            'string' => 'bar',
             'int' => '5',
             'decimal' => '0.0',
             'bool' => '0',
             'nulled' => null
         ], $result);
-        
+
+        $result = $operation->fetch('test', 'bar', 'string');
+
+        $this->assertSame([
+            'id' => '2',
+            'string' => 'bar',
+            'int' => '5',
+            'decimal' => '0.0',
+            'bool' => '0',
+            'nulled' => null
+        ], $result);
+
         $this->setExpectedException(\OutOfBoundsException::class, 'Row "123" not found in table "test" using field "int".');
-        
+
         $operation->fetch('test', 123, 'int');
     }
 
@@ -104,11 +115,11 @@ SQL;
             1,
             3
         ]);
-        
+
         $this->assertSame([
             [
                 'id' => '1',
-                'string' => '',
+                'string' => 'foo',
                 'int' => '4',
                 'decimal' => '0.0',
                 'bool' => '0',
@@ -116,22 +127,22 @@ SQL;
             ],
             [
                 'id' => '3',
-                'string' => '',
+                'string' => 'baz',
                 'int' => '4',
                 'decimal' => '0.0',
                 'bool' => '0',
                 'nulled' => null
             ]
         ], $result);
-        
+
         $result = $operation->fetchAll('test', [
             4
         ], 'int');
-        
+
         $this->assertSame([
             [
                 'id' => '1',
-                'string' => '',
+                'string' => 'foo',
                 'int' => '4',
                 'decimal' => '0.0',
                 'bool' => '0',
@@ -139,18 +150,33 @@ SQL;
             ],
             [
                 'id' => '3',
-                'string' => '',
+                'string' => 'baz',
                 'int' => '4',
                 'decimal' => '0.0',
                 'bool' => '0',
                 'nulled' => null
             ]
         ], $result);
-        
+
+        $result = $operation->fetchAll('test', [
+            'bar'
+        ], 'string');
+
+        $this->assertSame([
+            [
+                'id' => '2',
+                'string' => 'bar',
+                'int' => '5',
+                'decimal' => '0.0',
+                'bool' => '0',
+                'nulled' => null
+            ]
+        ], $result);
+
         $result = $operation->fetchAll('test', [
             123
         ]);
-        
+
         $this->assertSame([], $result);
     }
 }

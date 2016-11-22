@@ -17,32 +17,32 @@ interface UpdateOperationInterface
 {
 
     /**
-     * Updates a row in a table by using its id.
+     * Updates a row in a table by using a value.
      *
      * @param string $table
      *            The name of the table.
-     * @param int $id
-     *            Id of the row.
+     * @param mixed $value
+     *            The value.
      * @param mixed[] $fields
      *            Map with field-value pairs to set into row.
      * @param string $fieldName
-     *            Optional field name.
+     *            Optional field name. If no field name is set, "id" will be used.
      * @return int Number of affected rows.
      */
-    public function update(string $table, int $id, array $fields, string $fieldName = null): int;
+    public function update(string $table, $value, array $fields, string $fieldName = null): int;
 
     /**
-     * Updates mupltiples rows in a table using a list of ids.
+     * Updates mupltiples rows in a table using a list of values.
      *
      * @param string $table
      *            The name of the table.
-     * @param int[] $ids
-     *            List with ids of rows.
+     * @param mixed[] $values
+     *            List of values.
      * @param mixed[] $fields
      *            Map with field-value pairs to set into row.
      * @param string $fieldName
-     *            Optional field name.
+     *            Optional field name. If no field name is set, "id" will be used.
      * @return int Number of affected rows.
      */
-    public function updateAll(string $table, array $ids, array $fields, string $fieldName = null): int;
+    public function updateAll(string $table, array $values, array $fields, string $fieldName = null): int;
 }

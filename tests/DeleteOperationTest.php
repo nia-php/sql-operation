@@ -48,16 +48,16 @@ CREATE TABLE IF NOT EXISTS `test`
     `bool` INTEGER NOT NULL DEFAULT '0',
     `nulled` INTEGER NULL
 );
-INSERT INTO test(`id`, `int`) VALUES(NULL, 4);
-INSERT INTO test(`id`, `int`) VALUES(NULL, 5);
-INSERT INTO test(`id`, `int`) VALUES(NULL, 4);
+INSERT INTO test(`id`, `string`, `int`) VALUES(NULL, 'foo', 4);
+INSERT INTO test(`id`, `string`, `int`) VALUES(NULL, 'bar', 5);
+INSERT INTO test(`id`, `string`, `int`) VALUES(NULL, 'baz', 4);
 SQL;
-        
+
         $pdo = new PDO('sqlite:' . $this->databaseFile, null, null, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]);
         $pdo->exec($sql);
-        
+
         $this->adapter = new PdoWriteableAdapter($pdo);
     }
 
@@ -82,14 +82,14 @@ SQL;
     {
         $operation = new DeleteOperation($this->adapter);
         $result = $operation->delete('test', 2);
-        
+
         $this->assertSame(1, $result);
-        
+
         $sql = 'SELECT `id`, `int` FROM `test` ORDER BY `id`;';
-        
+
         $statement = $this->adapter->prepare($sql);
         $statement->execute();
-        
+
         $this->assertSame([
             [
                 'id' => '1',
@@ -97,6 +97,21 @@ SQL;
             ],
             [
                 'id' => '3',
+                'int' => '4'
+            ]
+        ], $statement->fetchAll());
+        $result = $operation->delete('test', 'baz', 'string');
+
+        $this->assertSame(1, $result);
+
+        $sql = 'SELECT `id`, `int` FROM `test` ORDER BY `id`;';
+
+        $statement = $this->adapter->prepare($sql);
+        $statement->execute();
+
+        $this->assertSame([
+            [
+                'id' => '1',
                 'int' => '4'
             ]
         ], $statement->fetchAll());
@@ -111,19 +126,32 @@ SQL;
         $result = $operation->deleteAll('test', [
             4
         ], 'int');
-        
+
         $this->assertSame(2, $result);
-        
+
         $sql = 'SELECT `id`, `int` FROM `test` ORDER BY `id`;';
-        
+
         $statement = $this->adapter->prepare($sql);
         $statement->execute();
-        
+
         $this->assertSame([
             [
                 'id' => '2',
                 'int' => '5'
             ]
         ], $statement->fetchAll());
+
+        $result = $operation->deleteAll('test', [
+            'bar'
+        ], 'string');
+
+        $this->assertSame(1, $result);
+
+        $sql = 'SELECT `id`, `int` FROM `test` ORDER BY `id`;';
+
+        $statement = $this->adapter->prepare($sql);
+        $statement->execute();
+
+        $this->assertSame([], $statement->fetchAll());
     }
 }

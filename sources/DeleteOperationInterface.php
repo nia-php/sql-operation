@@ -17,28 +17,28 @@ interface DeleteOperationInterface
 {
 
     /**
-     * Deletes a row from a table by using its id.
+     * Deletes a row from a table by using a value.
      *
      * @param string $table
      *            The name of the table.
-     * @param int $id
-     *            Id of the row.
+     * @param mixed $value
+     *            The value.
      * @param string $fieldName
-     *            Optional field name.
+     *            Optional field name. If no field name is set, "id" will be used.
      * @return int Number of affected rows.
      */
-    public function delete(string $table, int $id, string $fieldName = null): int;
+    public function delete(string $table, $value, string $fieldName = null): int;
 
     /**
-     * Deletes mupltiples rows from a table using a list of ids.
+     * Deletes mupltiples rows from a table using a list of values.
      *
      * @param string $table
      *            The name of the table.
-     * @param int[] $ids
-     *            List with ids of rows.
+     * @param mixed[] $values
+     *            List of values.
      * @param string $fieldName
-     *            Optional field name.
+     *            Optional field name. If no field name is set, "id" will be used.
      * @return int Number of affected rows.
      */
-    public function deleteAll(string $table, array $ids, string $fieldName = null): int;
+    public function deleteAll(string $table, array $values, string $fieldName = null): int;
 }

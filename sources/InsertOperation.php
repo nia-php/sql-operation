@@ -24,17 +24,17 @@ class InsertOperation implements InsertOperationInterface
      *
      * @var WriteableAdapterInterface
      */
-    private $adapter = null;
+    private $writeableAdapter = null;
 
     /**
      * Constructor.
      *
-     * @param WriteableAdapterInterface $adapter
+     * @param WriteableAdapterInterface $writeableAdapter
      *            The used adapter.
      */
-    public function __construct(WriteableAdapterInterface $adapter)
+    public function __construct(WriteableAdapterInterface $writeableAdapter)
     {
-        $this->adapter = $adapter;
+        $this->writeableAdapter = $writeableAdapter;
     }
 
     /**
@@ -55,17 +55,17 @@ class InsertOperation implements InsertOperationInterface
         $sqlStatement = <<<EOL
             INSERT INTO
                 `{$table}` ({$fieldlist})
-            VALUES 
+            VALUES
                 ({$placeholders});
 EOL;
         
-        $statement = $this->adapter->prepare($sqlStatement);
+        $statement = $this->writeableAdapter->prepare($sqlStatement);
         foreach (array_values($fields) as $index => $value) {
             $statement->bindIndex($index + 1, $value, $this->determineType($value));
         }
         
         $statement->execute();
         
-        return (int) $this->adapter->getLastInsertId();
+        return (int) $this->writeableAdapter->getLastInsertId();
     }
 }

@@ -24,29 +24,29 @@ class UpdateOperation implements UpdateOperationInterface
      *
      * @var WriteableAdapterInterface
      */
-    private $adapter = null;
+    private $writeableAdapter = null;
 
     /**
      * Constructor.
      *
-     * @param WriteableAdapterInterface $adapter
+     * @param WriteableAdapterInterface $writeableAdapter
      *            The used adapter.
      */
-    public function __construct(WriteableAdapterInterface $adapter)
+    public function __construct(WriteableAdapterInterface $writeableAdapter)
     {
-        $this->adapter = $adapter;
+        $this->writeableAdapter = $writeableAdapter;
     }
 
     /**
      *
      * {@inheritdoc}
      *
-     * @see \Nia\Sql\Operation\UpdateOperationInterface::update($table, $id, $fields, $fieldName)
+     * @see \Nia\Sql\Operation\UpdateOperationInterface::update($table, $value, $fields, $fieldName)
      */
-    public function update(string $table, int $id, array $fields, string $fieldName = null): int
+    public function update(string $table, $value, array $fields, string $fieldName = null): int
     {
         return $this->updateAll($table, [
-            $id
+            $value
         ], $fields, $fieldName);
     }
 
@@ -54,39 +54,39 @@ class UpdateOperation implements UpdateOperationInterface
      *
      * {@inheritdoc}
      *
-     * @see \Nia\Sql\Operation\UpdateOperationInterface::updateAll($table, $ids, $fields, $fieldName)
+     * @see \Nia\Sql\Operation\UpdateOperationInterface::updateAll($table, $values, $fields, $fieldName)
      */
-    public function updateAll(string $table, array $ids, array $fields, string $fieldName = null): int
+    public function updateAll(string $table, array $values, array $fields, string $fieldName = null): int
     {
         $fieldName = $fieldName ?? 'id';
-        
+
         $columns = array_keys($fields);
-        $values = array_values($fields);
-        
+        $columnValues = array_values($fields);
+
         // create SET syntax fieldlist with placeholders.
         $set = implode(', ', array_map(function (string $column) {
             return '`' . $column . '` = ?';
         }, $columns));
-        
-        // placeholders for ids.
-        $idsSet = implode(', ', array_fill(0, count($ids), '?'));
-        
+
+        // placeholders for values.
+        $valueSet = implode(', ', array_fill(0, count($values), '?'));
+
         $sqlStatement = <<<EOL
             UPDATE
                 `{$table}`
-            SET 
+            SET
                 {$set}
             WHERE
-                `{$fieldName}` IN ({$idsSet});
+                `{$fieldName}` IN ({$valueSet});
 EOL;
-        
-        $statement = $this->adapter->prepare($sqlStatement);
-        foreach (array_merge($values, $ids) as $index => $value) {
+
+        $statement = $this->writeableAdapter->prepare($sqlStatement);
+        foreach (array_merge($columnValues, $values) as $index => $value) {
             $statement->bindIndex($index + 1, $value, $this->determineType($value));
         }
-        
+
         $statement->execute();
-        
+
         return $statement->getNumRowsAffected();
     }
 }

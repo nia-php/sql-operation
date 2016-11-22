@@ -48,16 +48,16 @@ CREATE TABLE IF NOT EXISTS `test`
     `bool` INTEGER NOT NULL DEFAULT '0',
     `nulled` INTEGER NULL
 );
-INSERT INTO test(`id`, `int`) VALUES(NULL, 4);
-INSERT INTO test(`id`, `int`) VALUES(NULL, 5);
-INSERT INTO test(`id`, `int`) VALUES(NULL, 4);
+INSERT INTO test(`id`, `string`, `int`) VALUES(NULL, 'foo', 4);
+INSERT INTO test(`id`, `string`, `int`) VALUES(NULL, 'bar', 5);
+INSERT INTO test(`id`, `string`, `int`) VALUES(NULL, 'baz', 4);
 SQL;
-        
+
         $pdo = new PDO('sqlite:' . $this->databaseFile, null, null, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]);
         $pdo->exec($sql);
-        
+
         $this->adapter = new PdoWriteableAdapter($pdo);
     }
 
@@ -84,14 +84,14 @@ SQL;
         $result = $operation->update('test', 2, [
             'int' => 123
         ]);
-        
+
         $this->assertSame(1, $result);
-        
+
         $sql = 'SELECT `id`, `int` FROM `test` ORDER BY `id`;';
-        
+
         $statement = $this->adapter->prepare($sql);
         $statement->execute();
-        
+
         $this->assertSame([
             [
                 'id' => '1',
@@ -100,6 +100,32 @@ SQL;
             [
                 'id' => '2',
                 'int' => '123'
+            ],
+            [
+                'id' => '3',
+                'int' => '4'
+            ]
+        ], $statement->fetchAll());
+
+        $result = $operation->update('test', 'bar', [
+            'int' => 456
+        ], 'string');
+
+        $this->assertSame(1, $result);
+
+        $sql = 'SELECT `id`, `int` FROM `test` ORDER BY `id`;';
+
+        $statement = $this->adapter->prepare($sql);
+        $statement->execute();
+
+        $this->assertSame([
+            [
+                'id' => '1',
+                'int' => '4'
+            ],
+            [
+                'id' => '2',
+                'int' => '456'
             ],
             [
                 'id' => '3',
@@ -119,18 +145,46 @@ SQL;
         ], [
             'int' => 6
         ], 'int');
-        
+
         $this->assertSame(2, $result);
-        
+
         $sql = 'SELECT `id`, `int` FROM `test` ORDER BY `id`;';
-        
+
         $statement = $this->adapter->prepare($sql);
         $statement->execute();
-        
+
         $this->assertSame([
             [
                 'id' => '1',
                 'int' => '6'
+            ],
+            [
+                'id' => '2',
+                'int' => '5'
+            ],
+            [
+                'id' => '3',
+                'int' => '6'
+            ]
+        ], $statement->fetchAll());
+
+        $result = $operation->updateAll('test', [
+            'foo'
+        ], [
+            'int' => 7
+        ], 'string');
+
+        $this->assertSame(1, $result);
+
+        $sql = 'SELECT `id`, `int` FROM `test` ORDER BY `id`;';
+
+        $statement = $this->adapter->prepare($sql);
+        $statement->execute();
+
+        $this->assertSame([
+            [
+                'id' => '1',
+                'int' => '7'
             ],
             [
                 'id' => '2',

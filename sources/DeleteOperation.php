@@ -24,29 +24,29 @@ class DeleteOperation implements DeleteOperationInterface
      *
      * @var WriteableAdapterInterface
      */
-    private $adapter = null;
+    private $writeableAdapter = null;
 
     /**
      * Constructor.
      *
-     * @param WriteableAdapterInterface $adapter
+     * @param WriteableAdapterInterface $writeableAdapter
      *            The used adapter.
      */
-    public function __construct(WriteableAdapterInterface $adapter)
+    public function __construct(WriteableAdapterInterface $writeableAdapter)
     {
-        $this->adapter = $adapter;
+        $this->writeableAdapter = $writeableAdapter;
     }
 
     /**
      *
      * {@inheritdoc}
      *
-     * @see \Nia\Sql\Operation\DeleteOperationInterface::delete($table, $id, $fieldName)
+     * @see \Nia\Sql\Operation\DeleteOperationInterface::delete($table, $value, $fieldName)
      */
-    public function delete(string $table, int $id, string $fieldName = null): int
+    public function delete(string $table, $value, string $fieldName = null): int
     {
         return $this->deleteAll($table, [
-            $id
+            $value
         ], $fieldName);
     }
 
@@ -54,30 +54,30 @@ class DeleteOperation implements DeleteOperationInterface
      *
      * {@inheritdoc}
      *
-     * @see \Nia\Sql\Operation\DeleteOperationInterface::deleteAll($table, $ids, $fieldName)
+     * @see \Nia\Sql\Operation\DeleteOperationInterface::deleteAll($table, $values, $fieldName)
      */
-    public function deleteAll(string $table, array $ids, string $fieldName = null): int
+    public function deleteAll(string $table, array $values, string $fieldName = null): int
     {
         $fieldName = $fieldName ?? 'id';
-        
-        // placeholders for ids.
-        $idsSet = array_fill(0, count($ids), '?');
-        $idsSet = implode(', ', $idsSet);
-        
+
+        // placeholders for values.
+        $valueSet = array_fill(0, count($values), '?');
+        $valueSet = implode(', ', $valueSet);
+
         $sqlStatement = <<<EOL
             DELETE FROM
                 `{$table}`
             WHERE
-                `{$fieldName}` IN ({$idsSet});
+                `{$fieldName}` IN ({$valueSet});
 EOL;
-        
-        $statement = $this->adapter->prepare($sqlStatement);
-        foreach ($ids as $index => $value) {
+
+        $statement = $this->writeableAdapter->prepare($sqlStatement);
+        foreach ($values as $index => $value) {
             $statement->bindIndex($index + 1, $value, $this->determineType($value));
         }
-        
+
         $statement->execute();
-        
+
         return $statement->getNumRowsAffected();
     }
 }
