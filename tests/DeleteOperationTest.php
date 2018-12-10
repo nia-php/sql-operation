@@ -10,7 +10,7 @@
 declare(strict_types = 1);
 namespace Test\Nia\Sql\Operation;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Nia\Sql\Operation\DeleteOperation;
 use Nia\Sql\Adapter\PdoWriteableAdapterInterface;
 use Nia\Sql\Adapter\PdoWriteableAdapter;
@@ -19,7 +19,7 @@ use PDO;
 /**
  * Unit test for \Nia\Sql\Operation\DeleteOperation.
  */
-class DeleteOperationTest extends PHPUnit_Framework_TestCase
+class DeleteOperationTest extends TestCase
 {
 
     /** @var PdoWriteableAdapterInterface */
