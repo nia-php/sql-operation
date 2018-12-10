@@ -48,9 +48,21 @@ class FetchOperation implements FetchOperationInterface
     {
         $fieldName = $fieldName ?? 'id';
 
-        $rows = $this->fetchAll($table, [
-            $value
-        ], $fieldName);
+        $sqlStatement = <<<EOL
+            SELECT
+                *
+            FROM
+                `{$table}`
+            WHERE
+                `{$fieldName}` = :value
+            LIMIT 1;
+EOL;
+
+        $statement = $this->readableAdapter->prepare($sqlStatement);
+        $statement->bind(':value', $value, $this->determineType($value));
+        $statement->execute();
+
+        $rows = $statement->fetchAll();
 
         if (count($rows) !== 1) {
             throw new OutOfBoundsException(sprintf('Row "%s" not found in table "%s" using field "%s".', $value, $table, $fieldName));
