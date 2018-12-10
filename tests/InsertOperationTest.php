@@ -10,7 +10,7 @@
 declare(strict_types = 1);
 namespace Test\Nia\Sql\Operation;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Nia\Sql\Operation\InsertOperation;
 use Nia\Sql\Adapter\PdoWriteableAdapterInterface;
 use Nia\Sql\Adapter\PdoWriteableAdapter;
@@ -19,7 +19,7 @@ use PDO;
 /**
  * Unit test for \Nia\Sql\Operation\InsertOperation.
  */
-class InsertOperationTest extends PHPUnit_Framework_TestCase
+class InsertOperationTest extends TestCase
 {
 
     /** @var PdoWriteableAdapterInterface */

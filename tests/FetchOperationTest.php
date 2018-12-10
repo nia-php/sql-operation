@@ -10,7 +10,7 @@
 declare(strict_types = 1);
 namespace Test\Nia\Sql\Operation;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Nia\Sql\Operation\FetchOperation;
 use Nia\Sql\Adapter\PdoReadableAdapter;
 use Nia\Sql\Adapter\PdoReadableAdapterInterface;
@@ -19,7 +19,7 @@ use PDO;
 /**
  * Unit test for \Nia\Sql\Operation\FetchOperation.
  */
-class FetchOperationTest extends PHPUnit_Framework_TestCase
+class FetchOperationTest extends TestCase
 {
 
     /** @var PdoReadableAdapterInterface */
@@ -100,7 +100,7 @@ SQL;
             'nulled' => null
         ], $result);
 
-        $this->setExpectedException(\OutOfBoundsException::class, 'Row "123" not found in table "test" using field "int".');
+        $this->expectException(\OutOfBoundsException::class, 'Row "123" not found in table "test" using field "int".');
 
         $operation->fetch('test', 123, 'int');
     }
