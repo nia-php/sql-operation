@@ -45,9 +45,33 @@ class UpdateOperation implements UpdateOperationInterface
      */
     public function update(string $table, $value, array $fields, string $fieldName = null): int
     {
-        return $this->updateAll($table, [
-            $value
-        ], $fields, $fieldName);
+        $fieldName = $fieldName ?? 'id';
+
+        $columns = array_keys($fields);
+        $columnValues = array_values($fields);
+
+        // create SET syntax fieldlist with placeholders.
+        $set = implode(', ', array_map(function (string $column) {
+            return '`' . $column . '` = ?';
+        }, $columns));
+
+        $sqlStatement = <<<EOL
+            UPDATE
+                `{$table}`
+            SET
+                {$set}
+            WHERE
+                `{$fieldName}` = ?;
+EOL;
+
+        $statement = $this->writeableAdapter->prepare($sqlStatement);
+        foreach (array_merge($columnValues, (array) $value) as $index => $value) {
+            $statement->bindIndex($index + 1, $value, $this->determineType($value));
+        }
+
+        $statement->execute();
+
+        return $statement->getNumRowsAffected();
     }
 
     /**

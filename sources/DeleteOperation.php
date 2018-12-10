@@ -45,9 +45,20 @@ class DeleteOperation implements DeleteOperationInterface
      */
     public function delete(string $table, $value, string $fieldName = null): int
     {
-        return $this->deleteAll($table, [
-            $value
-        ], $fieldName);
+        $fieldName = $fieldName ?? 'id';
+
+        $sqlStatement = <<<EOL
+            DELETE FROM
+                `{$table}`
+            WHERE
+                `{$fieldName}` = :value;
+EOL;
+
+        $statement = $this->writeableAdapter->prepare($sqlStatement);
+        $statement->bind(':value', $value, $this->determineType($value));
+        $statement->execute();
+
+        return $statement->getNumRowsAffected();
     }
 
     /**
